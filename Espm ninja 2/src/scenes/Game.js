@@ -26,7 +26,7 @@ export class Game extends Phaser.Scene
 
     update ()
     {
-        // if (!this.gameStarted) return;
+        if (!this.gameStarted) return;
         this.drawSlash();
         this.checkCollisions();
     }
@@ -46,6 +46,7 @@ export class Game extends Phaser.Scene
         this.targetRadius = 100;
         this.targetCircle = new Phaser.Geom.Circle(this.centreX, 300, this.targetRadius);
         this.lives = 3;
+        this.gameStarted = false;
     }
 
     initGameUi ()
@@ -114,6 +115,8 @@ export class Game extends Phaser.Scene
     {
         this.input.on('pointermove', (pointer) =>
         {
+            if (!this.gameStarted) return;
+
             // if (this.trailPoints.length > 4)
             // {
             //     const trailPoint = this.trailPoints[ this.trailPoints.length - 1 ];
