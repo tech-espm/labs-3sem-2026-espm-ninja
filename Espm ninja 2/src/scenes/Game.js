@@ -16,6 +16,7 @@ export class Game extends Phaser.Scene
 
     create ()
     {
+        this.cameras.main.setBackgroundColor('#ffffff');
         this.initVariables();
         this.initGameUi();
         // this.initAnimations();
@@ -52,27 +53,35 @@ export class Game extends Phaser.Scene
     initGameUi ()
     {
         // Create tutorial text
-        this.tutorialText = this.add.text(this.centreX, this.centreY, 'Tap to start!', {
-            fontFamily: 'Arial Black', fontSize: 42, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 8,
+        this.tutorialText = this.add.text(this.centreX, this.centreY, 'Toque para iniciar', {
+            fontFamily: 'Arial Black', fontSize: 42, color: '#111111',
+            stroke: '#ffffff', strokeThickness: 8,
             align: 'center'
         })
             .setOrigin(0.5)
             .setDepth(100);
 
         // Create score text
-        this.scoreText = this.add.text(20, 20, 'Score: 0', {
-            fontFamily: 'Arial Black', fontSize: 28, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 8,
+        this.scoreText = this.add.text(24, 16, '0', {
+            fontFamily: 'Arial Black', fontSize: 40, color: '#111111',
+            stroke: '#ffffff', strokeThickness: 8,
         })
             .setDepth(100);
 
-        // Create lives text
-        this.livesText = this.add.text(this.scale.width - 200, 20, 'Vidas: 3', {
-            fontFamily: 'Arial Black', fontSize: 28, color: '#ff4444',
-            stroke: '#000000', strokeThickness: 8,
-        })
-            .setDepth(100);
+        // Create hearts display
+        this.lifeIcons = [];
+
+        for (let i = 0; i < this.lives; i++)
+        {
+            const heart = this.add.text(this.scale.width - 56 - (i * 52), 18, '♥', {
+                fontFamily: 'Arial Black', fontSize: 40, color: '#ff4444',
+                stroke: '#000000', strokeThickness: 8,
+            })
+                .setOrigin(0.5, 0)
+                .setDepth(100);
+
+            this.lifeIcons.push(heart);
+        }
 
         // Create game over text
         this.gameOverText = this.add.text(this.scale.width * 0.5, this.scale.height * 0.5, 'Game Over', {
@@ -165,7 +174,7 @@ export class Game extends Phaser.Scene
             if (i > 4)
             {
                 // Draw a line between the current point and the previous point
-                this.trailGraphics.lineStyle(this.trailThickness, 0xffffff, 1);
+                this.trailGraphics.lineStyle(this.trailThickness, 0x000000, 1);
                 this.trailCurve.draw(this.trailGraphics, 64);
             }
         }
@@ -248,13 +257,19 @@ export class Game extends Phaser.Scene
     updateScore (points)
     {
         this.score += points;
-        this.scoreText.setText(`Score: ${this.score}`);
+        this.scoreText.setText(`${this.score}`);
     }
 
     loseLife ()
     {
         this.lives--;
-        this.livesText.setText(`Vidas: ${this.lives}`);
+
+        const lostHeart = this.lifeIcons[this.lives];
+
+        if (lostHeart)
+        {
+            lostHeart.setAlpha(0.18);
+        }
 
         if (this.lives <= 0) {
             this.GameOver();
