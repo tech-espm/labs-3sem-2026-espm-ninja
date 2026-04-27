@@ -16,7 +16,16 @@ export class Game extends Phaser.Scene
 
     create ()
     {
-        this.cameras.main.setBackgroundColor('#ffffff');
+        this.cameras.main.setBackgroundColor('#2a170b');
+        const bg = this.add.image(this.scale.width * 0.5, this.scale.height * 0.5, ASSETS.image.gameBgArt.key)
+            .setOrigin(0.5)
+            .setDepth(-20);
+        const bgScale = Math.max(this.scale.width / bg.width, this.scale.height / bg.height);
+        bg.setScale(bgScale);
+
+        this.add.rectangle(this.scale.width * 0.5, this.scale.height * 0.5, this.scale.width, this.scale.height, 0x000000, 0.18)
+            .setDepth(-10);
+
         this.initVariables();
         this.initGameUi();
         // this.initAnimations();
@@ -54,8 +63,8 @@ export class Game extends Phaser.Scene
     {
         // Create tutorial text
         this.tutorialText = this.add.text(this.centreX, this.centreY, 'Toque para iniciar', {
-            fontFamily: 'Arial Black', fontSize: 42, color: '#111111',
-            stroke: '#ffffff', strokeThickness: 8,
+            fontFamily: 'Arial Black', fontSize: 42, color: '#fff4de',
+            stroke: '#4a220d', strokeThickness: 8,
             align: 'center'
         })
             .setOrigin(0.5)
@@ -63,8 +72,8 @@ export class Game extends Phaser.Scene
 
         // Create score text
         this.scoreText = this.add.text(24, 16, '0', {
-            fontFamily: 'Arial Black', fontSize: 40, color: '#111111',
-            stroke: '#ffffff', strokeThickness: 8,
+            fontFamily: 'Arial Black', fontSize: 40, color: '#fff4de',
+            stroke: '#4a220d', strokeThickness: 8,
         })
             .setDepth(100);
 

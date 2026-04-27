@@ -10,108 +10,61 @@ export class GameOver extends Phaser.Scene {
     create() {
         const width = this.scale.width;
         const height = this.scale.height;
+        this.cameras.main.setBackgroundColor('#1f130b');
 
-        // Inverted palette relative to the start screen.
-        this.add.rectangle(width / 2, height / 2, width, height, 0xffffff).setDepth(-3);
-        this.add.rectangle(width / 2, height / 2, width * 0.86, height * 0.72, 0xf7f7f7, 0.9).setDepth(-2);
-        this.addWornPaperTexture(width, height);
+        const art = this.add.image(width / 2, height / 2, 'gameOverArt').setOrigin(0.5);
+        const fitScale = Math.min(width / art.width, height / art.height);
+        art.setScale(fitScale);
 
-        // "JOGADOR ELIMINADO" Text
-        const failText = this.add.text(width / 2, height / 2 - 110, 'REPROVADO!', {
-            fontFamily: 'Bodoni MT, Didot, Georgia, Times New Roman, serif',
-            fontSize: '90px',
-            color: '#b1003b',
-            stroke: '#ffffff',
-            strokeThickness: 2,
+        this.add.text(width * 0.5, height * 0.12, `Score: ${this.finalScore}`, {
+            fontFamily: 'Georgia, Times New Roman, serif',
+            fontSize: `${Math.max(28, Math.floor(height * 0.05))}px`,
+            color: '#fff0d6',
+            stroke: '#4a220d',
+            strokeThickness: 7,
             fontStyle: 'bold'
         }).setOrigin(0.5);
 
-        if (failText.setLetterSpacing) {
-            failText.setLetterSpacing(5);
-        }
+        // Normalized button area from the provided artwork.
+        const buttonZone = this.add.zone(
+            width / 2 + (art.width * fitScale * 0.073),
+            height / 2 + (art.height * fitScale * 0.247),
+            art.width * fitScale * 0.43,
+            art.height * fitScale * 0.2
+        )
+            .setOrigin(0.5)
+            .setInteractive({ useHandCursor: true });
 
-        // Final Score display (Optional but nice)
-        this.add.text(width / 2, height / 2, `Score: ${this.finalScore}`, {
-            fontFamily: 'Bodoni MT, Didot, Georgia, Times New Roman, serif',
-            fontSize: '32px',
-            color: '#b1003b',
-            stroke: '#ffffff',
-            strokeThickness: 2,
+        const ctaHint = this.add.text(buttonZone.x, buttonZone.y + buttonZone.height * 0.82, 'Clique em VOLTAR AO MENU', {
+            fontFamily: 'Georgia, Times New Roman, serif',
+            fontSize: `${Math.max(14, Math.floor(height * 0.023))}px`,
+            color: '#ffe0b4',
+            stroke: '#3f220f',
+            strokeThickness: 4,
             fontStyle: 'bold'
         }).setOrigin(0.5);
 
-        // Menu Button Rectangle
-        const buttonWidth = 350;
-        const buttonHeight = 80;
-        const buttonColor = 0xb1003b;
-        const buttonHoverColor = 0x980033;
+        const pulse = this.tweens.add({
+            targets: ctaHint,
+            alpha: { from: 1, to: 0.45 },
+            duration: 750,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
 
-        const buttonShadow = this.add.rectangle(width / 2, height / 2 + 107, buttonWidth, buttonHeight, 0x000000, 0.18)
-            .setOrigin(0.5);
-
-        const buttonRect = this.add.rectangle(width / 2, height / 2 + 100, buttonWidth, buttonHeight, buttonColor)
-            .setStrokeStyle(4, 0x7d002a)
-            .setInteractive({ useHandCursor: true })
-            .setOrigin(0.5);
-
-        // Menu Button Text
-        const buttonText = this.add.text(width / 2, height / 2 + 100, 'VOLTAR AO MENU', {
-            fontFamily: 'Bodoni MT, Didot, Georgia, Times New Roman, serif',
-            fontSize: '28px',
-            color: '#ffffff',
-            fontStyle: 'bold',
-            stroke: '#7d002a',
-            strokeThickness: 4
-        }).setOrigin(0.5);
-
-        // Button Interactions
-        buttonRect.on('pointerover', () => {
-            buttonRect.setFillStyle(buttonHoverColor);
-            buttonShadow.setAlpha(0.28);
+        buttonZone.on('pointerover', () => {
             this.sys.canvas.style.cursor = 'pointer';
         });
 
-        buttonRect.on('pointerout', () => {
-            buttonRect.setFillStyle(buttonColor);
-            buttonShadow.setAlpha(0.18);
+        buttonZone.on('pointerout', () => {
             this.sys.canvas.style.cursor = 'default';
         });
 
-        buttonRect.on('pointerdown', () => {
+        buttonZone.on('pointerdown', () => {
+            pulse.stop();
             this.sys.canvas.style.cursor = 'default';
             this.scene.start('StartScreen');
         });
-    }
-
-    addWornPaperTexture(width, height) {
-        // Soft edge darkening to mimic old, handled paper.
-        this.add.rectangle(width / 2, 26, width, 52, 0xb1003b, 0.1).setDepth(-1.95);
-        this.add.rectangle(width / 2, height - 26, width, 52, 0xb1003b, 0.1).setDepth(-1.95);
-        this.add.rectangle(26, height / 2, 52, height, 0xb1003b, 0.08).setDepth(-1.95);
-        this.add.rectangle(width - 26, height / 2, 52, height, 0xb1003b, 0.08).setDepth(-1.95);
-
-        // Uneven paper stains.
-        for (let i = 0; i < 140; i++) {
-            const x = Phaser.Math.Between(40, width - 40);
-            const y = Phaser.Math.Between(40, height - 40);
-            const r = Phaser.Math.FloatBetween(2, 8);
-            this.add.circle(x, y, r, 0xe4c6d1, Phaser.Math.FloatBetween(0.04, 0.1))
-                .setDepth(-1.86);
-        }
-
-        // Text-like faded lines to suggest old manuscript impression.
-        for (let i = 0; i < 30; i++) {
-            const x = Phaser.Math.Between(120, width - 120);
-            const y = Phaser.Math.Between(90, height - 90);
-            const len = Phaser.Math.Between(120, 340);
-            this.add.rectangle(x, y, len, Phaser.Math.Between(2, 4), 0xb1003b, Phaser.Math.FloatBetween(0.06, 0.16))
-                .setAngle(Phaser.Math.Between(-10, 10))
-                .setDepth(-1.8);
-        }
-
-        // Worn frame similar to old cover embossing.
-        this.add.rectangle(width / 2, height / 2, width * 0.9, height * 0.78)
-            .setStrokeStyle(4, 0xb1003b, 0.2)
-            .setDepth(-1.7);
     }
 }

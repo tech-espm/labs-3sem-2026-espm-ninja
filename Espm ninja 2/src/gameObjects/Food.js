@@ -47,6 +47,26 @@ export default class Food extends Phaser.Physics.Arcade.Sprite
         this.health = 1;
         this.invulnerable = false; // Prevents being hit multiple times in a single slash
 
+        let glowColor = 0xfff2c7;
+        if (this.isBomb) {
+            glowColor = 0xff3e3e;
+        } else if (this.isBig) {
+            glowColor = 0xffd277;
+        }
+
+        this.glow = scene.add.ellipse(this.x, this.y, this.displayWidth * 1.45, this.displayHeight * 1.45, glowColor, 0.24)
+            .setBlendMode(Phaser.BlendModes.ADD)
+            .setDepth(this.depth - 1);
+
+        this.glowPulse = scene.tweens.add({
+            targets: this.glow,
+            alpha: { from: 0.18, to: 0.34 },
+            duration: 360,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+
         if (this.isBomb) {
             this.setTint(0xff0000); // Red tinted for visual differentiation
         } else if (this.isBig) {
@@ -60,6 +80,12 @@ export default class Food extends Phaser.Physics.Arcade.Sprite
     preUpdate (time, delta)
     {
         super.preUpdate(time, delta);
+
+        if (this.glow)
+        {
+            this.glow.setPosition(this.x, this.y);
+        }
+
         if (this.y > this.scene.scale.height + this.height && this.body.velocity.y > 0)
         {
             if (!this.isBomb) {
@@ -123,5 +149,22 @@ export default class Food extends Phaser.Physics.Arcade.Sprite
                 this.scene.removeFood(this);
             }
         }
+    }
+
+    destroy (fromScene)
+    {
+        if (this.glowPulse)
+        {
+            this.glowPulse.stop();
+            this.glowPulse = null;
+        }
+
+        if (this.glow)
+        {
+            this.glow.destroy();
+            this.glow = null;
+        }
+
+        super.destroy(fromScene);
     }
 }
