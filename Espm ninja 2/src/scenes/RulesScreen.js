@@ -74,8 +74,22 @@ export class RulesScreen extends Phaser.Scene {
         buildPageText(
             leftPageCenterX,
             'Regras do Desafio',
-            '1. Corte apenas os alimentos para pontuar.\n2. Evite as bombas para nao perder vidas.\n3. O jogo termina quando suas vidas acabarem.'
+            '1. Corte apenas os alimentos para pontuar.\n2. Evite as bombas para nao perder vidas. (Objetos vermelhos) \n3. O jogo termina quando suas vidas acabarem.'
         );
+
+        const rulesIconY = art.y + (artHeight * 0.06) + 15;
+        const rulesIconScale = Math.max(0.9, fitScale * 0.8);
+
+        this.add.circle(leftPageCenterX - (pageTextWidth * 0.22), rulesIconY, Math.max(26, artWidth * 0.025), 0xf7d9a8, 0.45);
+        this.add.image(leftPageCenterX - (pageTextWidth * 0.22), rulesIconY, 'tiles', 58)
+            .setScale(rulesIconScale)
+            .setRotation(-0.08);
+
+        this.add.circle(leftPageCenterX + (pageTextWidth * 0.22), rulesIconY, Math.max(26, artWidth * 0.025), 0xffa16d, 0.32);
+        this.add.image(leftPageCenterX + (pageTextWidth * 0.22), rulesIconY, 'tiles', 105)
+            .setScale(rulesIconScale)
+            .setTint(0xff4b4b)
+            .setRotation(0.08);
 
         buildPageText(
             rightPageCenterX,
