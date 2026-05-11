@@ -6,16 +6,14 @@ import ASSETS from '../assets.js';
 import ANIMATION from '../animation.js';
 import Food from '../gameObjects/Food.js';
 import TrailPoint from '../gameObjects/TrailPoint.js';
+import Explosion from '../gameObjects/Explosion.js';
 
-export class Game extends Phaser.Scene
-{
-    constructor()
-    {
+export class Game extends Phaser.Scene {
+    constructor() {
         super('Game');
     }
 
-    create ()
-    {
+    create() {
         this.cameras.main.setBackgroundColor('#2a170b');
         const bg = this.add.image(this.scale.width * 0.5, this.scale.height * 0.5, ASSETS.image.gameBgArt.key)
             .setOrigin(0.5)
@@ -34,15 +32,13 @@ export class Game extends Phaser.Scene
         this.initPhysics();
     }
 
-    update ()
-    {
+    update() {
         if (!this.gameStarted) return;
         this.drawSlash();
         this.checkCollisions();
     }
 
-    initVariables ()
-    {
+    initVariables() {
         this.score = 0;
         this.centreX = this.scale.width * 0.5;
         this.centreY = this.scale.height * 0.5;
@@ -59,8 +55,7 @@ export class Game extends Phaser.Scene
         this.gameStarted = false;
     }
 
-    initGameUi ()
-    {
+    initGameUi() {
         // Create tutorial text
         this.tutorialText = this.add.text(this.centreX, this.centreY, 'Toque para iniciar', {
             fontFamily: 'Arial Black', fontSize: 42, color: '#fff4de',
@@ -80,8 +75,7 @@ export class Game extends Phaser.Scene
         // Create hearts display
         this.lifeIcons = [];
 
-        for (let i = 0; i < this.lives; i++)
-        {
+        for (let i = 0; i < this.lives; i++) {
             const heart = this.add.text(this.scale.width - 56 - (i * 52), 18, '♥', {
                 fontFamily: 'Arial Black', fontSize: 40, color: '#ff4444',
                 stroke: '#000000', strokeThickness: 8,
@@ -101,10 +95,60 @@ export class Game extends Phaser.Scene
             .setOrigin(0.5)
             .setDepth(100)
             .setVisible(false);
+
+        this.createTutorialPopup();
     }
 
-    initAnimations ()
-    {
+    createTutorialPopup() {
+        this.tutorialPopup = this.add.container(this.centreX, this.centreY + 160).setDepth(100);
+
+        const bgWidth = 500;
+        const bgHeight = 180;
+        const bg = this.add.rectangle(0, 0, bgWidth, bgHeight, 0x000000, 0.7)
+            .setStrokeStyle(4, 0x4a220d);
+        this.tutorialPopup.add(bg);
+
+        // Cortar (Left side)
+        const cortarText = this.add.text(-120, -50, 'Cortar', {
+            fontFamily: 'Arial Black', fontSize: 24, color: '#44ff44',
+            stroke: '#000000', strokeThickness: 4
+        }).setOrigin(0.5);
+        this.tutorialPopup.add(cortarText);
+
+        const goodItem1 = this.add.sprite(-160, 10, ASSETS.spritesheet.tiles.key, 13).setScale(1.2);
+        const goodItem2 = this.add.sprite(-120, 10, ASSETS.spritesheet.tiles.key, 14).setScale(1.2);
+        const goodItem3 = this.add.sprite(-80, 10, ASSETS.spritesheet.tiles.key, 25).setScale(1.2);
+        this.tutorialPopup.add([goodItem1, goodItem2, goodItem3]);
+
+        const bigItemText = this.add.text(-120, 60, '1 a 3 Golpes', {
+            fontFamily: 'Arial Black', fontSize: 14, color: '#ffd277',
+            stroke: '#000000', strokeThickness: 3
+        }).setOrigin(0.5);
+        this.tutorialPopup.add(bigItemText);
+
+
+        // Não Cortar (Right side)
+        const evitarText = this.add.text(120, -50, 'Não Cortar', {
+            fontFamily: 'Arial Black', fontSize: 24, color: '#ff4444',
+            stroke: '#000000', strokeThickness: 4
+        }).setOrigin(0.5);
+        this.tutorialPopup.add(evitarText);
+
+        const badItem1 = this.add.sprite(120, 10, ASSETS.spritesheet.tiles.key, 42).setScale(1.2).setTint(0xff0000);
+        this.tutorialPopup.add(badItem1);
+
+        const loseText = this.add.text(120, 60, 'Fim de Jogo', {
+            fontFamily: 'Arial Black', fontSize: 14, color: '#ff4444',
+            stroke: '#000000', strokeThickness: 3
+        }).setOrigin(0.5);
+        this.tutorialPopup.add(loseText);
+
+        // Separator line
+        const line = this.add.rectangle(0, 0, 4, bgHeight - 40, 0x4a220d);
+        this.tutorialPopup.add(line);
+    }
+
+    initAnimations() {
         // this.anims.create({
         //     key: ANIMATION.explosion.key,
         //     frames: this.anims.generateFrameNumbers(ANIMATION.explosion.texture, ANIMATION.explosion.config),
@@ -113,8 +157,7 @@ export class Game extends Phaser.Scene
         // });
     }
 
-    initPhysics ()
-    {
+    initPhysics() {
         this.foodGroup = this.add.group();
         this.enemyBulletGroup = this.add.group();
         this.playerBulletGroup = this.add.group();
@@ -124,15 +167,12 @@ export class Game extends Phaser.Scene
         // this.physics.add.overlap(this.player, this.enemyGroup, this.hitPlayer, null, this);
     }
 
-    initPlayer ()
-    {
+    initPlayer() {
         this.player = new Player(this, this.centreX, this.scale.height - 100, 8);
     }
 
-    initInput ()
-    {
-        this.input.on('pointermove', (pointer) =>
-        {
+    initInput() {
+        this.input.on('pointermove', (pointer) => {
             if (!this.gameStarted) return;
 
             // if (this.trailPoints.length > 4)
@@ -146,10 +186,8 @@ export class Game extends Phaser.Scene
         });
 
         // pointerdown once event
-        this.input.once('pointerdown', () =>
-        {
-            if (!this.gameStarted)
-            {
+        this.input.once('pointerdown', () => {
+            if (!this.gameStarted) {
                 this.startGame();
             }
         });
@@ -163,25 +201,21 @@ export class Game extends Phaser.Scene
         // });
     }
 
-    drawSlash ()
-    {
+    drawSlash() {
         this.trailGraphics.clear();
         // Iterate through the trailPoints array and draw a line between each point
-        for (let i = 0; i < this.trailPoints.length; i++)
-        {
-            const trailPoint = this.trailPoints[ i ];
+        for (let i = 0; i < this.trailPoints.length; i++) {
+            const trailPoint = this.trailPoints[i];
             trailPoint.updateTime(1);
             // If the time left for the trail point is less than 0, remove it
-            if (trailPoint.getTimeLeft() < 0)
-            {
+            if (trailPoint.getTimeLeft() < 0) {
                 this.trailPoints.splice(i, 1);
                 this.trailCurve.points.splice(i, 1);
                 continue;
             }
 
             // If there is more than one point in the array
-            if (i > 4)
-            {
+            if (i > 4) {
                 // Draw a line between the current point and the previous point
                 this.trailGraphics.lineStyle(this.trailThickness, 0x000000, 1);
                 this.trailCurve.draw(this.trailGraphics, 64);
@@ -189,27 +223,24 @@ export class Game extends Phaser.Scene
         }
     }
 
-    checkCollisions ()
-    {
+    checkCollisions() {
         if (this.trailPoints.length < 4) return;
 
         const points = this.trailCurve.getDistancePoints(this.trailPointCount);
         // check between sprites and the curve
-        this.foodGroup.getChildren().forEach((food) =>
-        {
+        this.foodGroup.getChildren().forEach((food) => {
             food.checkCollision(points);
         });
     }
 
-    startGame ()
-    {
+    startGame() {
         this.gameStarted = true;
         this.tutorialText.setVisible(false);
+        if (this.tutorialPopup) this.tutorialPopup.setVisible(false);
         this.addFoodWave();
     }
 
-    addFoodWave ()
-    {
+    addFoodWave() {
         // Aumenta o número máximo de frutas que podem aparecer (até 6)
         const maxItems = Math.min(3 + Math.floor(this.score / 50), 6);
         const randomCount = Phaser.Math.Between(1, maxItems);
@@ -233,50 +264,41 @@ export class Game extends Phaser.Scene
         );
     }
 
-    addFood ()
-    {
+    addFood() {
         this.foodGroup.add(new Food(this, this.targetCircle));
     }
 
-    removeFood (food)
-    {
+    removeFood(food) {
         this.foodGroup.remove(food, true, true);
 
-        if (this.foodGroup.getChildren().length === 0)
-        {
+        if (this.foodGroup.getChildren().length === 0) {
             // Diminui o tempo de espera entre as ondas baseado na pontuação
             const nextWaveDelay = Math.max(200, 1000 - this.score * 3);
-            this.time.delayedCall(nextWaveDelay, () =>
-            {
+            this.time.delayedCall(nextWaveDelay, () => {
                 this.addFoodWave();
             });
         }
     }
 
-    addExplosion (x, y)
-    {
+    addExplosion(x, y) {
         new Explosion(this, x, y);
     }
 
-    sliceFruit ()
-    {
+    sliceFruit() {
 
     }
 
-    updateScore (points)
-    {
+    updateScore(points) {
         this.score += points;
         this.scoreText.setText(`${this.score}`);
     }
 
-    loseLife ()
-    {
+    loseLife() {
         this.lives--;
 
         const lostHeart = this.lifeIcons[this.lives];
 
-        if (lostHeart)
-        {
+        if (lostHeart) {
             lostHeart.setAlpha(0.18);
         }
 
@@ -285,13 +307,12 @@ export class Game extends Phaser.Scene
         }
     }
 
-    GameOver ()
-    {
+    GameOver() {
         this.gameStarted = false;
         // Pause current physics and stop game timers if needed
         this.physics.pause();
         this.time.removeAllEvents();
-        
+
         // Transition to GameOver scene with data
         this.scene.start('GameOver', { score: this.score });
     }

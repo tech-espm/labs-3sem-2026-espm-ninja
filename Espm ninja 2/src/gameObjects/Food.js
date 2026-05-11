@@ -122,6 +122,7 @@ export default class Food extends Phaser.Physics.Arcade.Sprite
         if (this.invulnerable) return;
 
         if (this.isBomb) {
+            this.scene.addExplosion(this.x, this.y);
             this.scene.GameOver();
             this.scene.removeFood(this);
         } else {
@@ -146,6 +147,7 @@ export default class Food extends Phaser.Physics.Arcade.Sprite
                 } else {
                     this.scene.updateScore(10);
                 }
+                this.scene.addExplosion(this.x, this.y);
                 this.scene.removeFood(this);
             }
         }
