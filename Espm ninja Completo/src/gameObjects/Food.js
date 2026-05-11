@@ -75,6 +75,17 @@ export default class Food extends Phaser.Physics.Arcade.Sprite
             this.radius = this.width; // double radius basically because scale is 2
             this.setCircle(this.radius / 2); // setCircle accounts for unscaled width, so use original half-width
         }
+
+        this.maskImage = scene.make.sprite({
+            x: this.x,
+            y: this.y,
+            key: 'circleMask',
+            add: false
+        });
+        if (this.isBig) {
+            this.maskImage.setScale(2);
+        }
+        this.setMask(new Phaser.Display.Masks.BitmapMask(scene, this.maskImage));
     }
 
     preUpdate (time, delta)
@@ -84,6 +95,10 @@ export default class Food extends Phaser.Physics.Arcade.Sprite
         if (this.glow)
         {
             this.glow.setPosition(this.x, this.y);
+        }
+
+        if (this.maskImage) {
+            this.maskImage.setPosition(this.x, this.y);
         }
 
         if (this.y > this.scene.scale.height + this.height && this.body.velocity.y > 0)
@@ -165,6 +180,11 @@ export default class Food extends Phaser.Physics.Arcade.Sprite
         {
             this.glow.destroy();
             this.glow = null;
+        }
+
+        if (this.maskImage) {
+            this.maskImage.destroy();
+            this.maskImage = null;
         }
 
         super.destroy(fromScene);

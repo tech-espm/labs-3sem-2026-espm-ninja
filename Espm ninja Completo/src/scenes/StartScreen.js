@@ -22,7 +22,7 @@ export class StartScreen extends Phaser.Scene {
             .setOrigin(0.5)
             .setInteractive({ useHandCursor: true });
 
-        const ctaHint = this.add.text(buttonZone.x, buttonZone.y + buttonZone.height * 0.78, 'Clique no botão JOGAR', {
+        const ctaHint = this.add.text(width / 2, buttonZone.y + buttonZone.height * 0.78, 'Clique no botão JOGAR', {
             fontFamily: 'Georgia, Times New Roman, serif',
             fontSize: `${Math.max(14, Math.floor(height * 0.026))}px`,
             color: '#ffe0b4',
@@ -61,6 +61,14 @@ export class StartScreen extends Phaser.Scene {
                     this.scene.start('RulesScreen');
                 }
             });
+        });
+
+        this.input.on('pointerdown', (pointer, currentlyOver) => {
+            if (!currentlyOver.includes(buttonZone)) {
+                if (!this.scale.isFullscreen) {
+                    this.scale.startFullscreen();
+                }
+            }
         });
     }
 }

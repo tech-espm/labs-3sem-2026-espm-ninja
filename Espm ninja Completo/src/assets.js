@@ -14,7 +14,7 @@ export default {
     'image': {
         startScreenArt: {
             key: 'startScreenArt',
-            args: ['assets/WhatsApp Image 2026-04-13 at 14.46.14.jpeg']
+            args: ['assets/WhatsApp Image 2026-05-11 at 14.59.48.jpeg']
         },
         gameOverArt: {
             key: 'gameOverArt',

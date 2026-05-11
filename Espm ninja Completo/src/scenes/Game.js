@@ -24,6 +24,11 @@ export class Game extends Phaser.Scene {
         this.add.rectangle(this.scale.width * 0.5, this.scale.height * 0.5, this.scale.width, this.scale.height, 0x000000, 0.18)
             .setDepth(-10);
 
+        const g = this.make.graphics({x: 0, y: 0, add: false});
+        g.fillStyle(0xffffff, 1);
+        g.fillCircle(36, 36, 33); // 33 radius to crop stray pixels on 72x72 tiles
+        g.generateTexture('circleMask', 72, 72);
+
         this.initVariables();
         this.initGameUi();
         // this.initAnimations();
@@ -115,9 +120,23 @@ export class Game extends Phaser.Scene {
         }).setOrigin(0.5);
         this.tutorialPopup.add(cortarText);
 
+        const makeMask = (x, y, scale) => {
+            const m = this.make.sprite({
+                x: this.centreX + x,
+                y: this.centreY + 160 + y,
+                key: 'circleMask',
+                add: false
+            });
+            m.setScale(scale);
+            return new Phaser.Display.Masks.BitmapMask(this, m);
+        };
+
         const goodItem1 = this.add.sprite(-160, 10, ASSETS.spritesheet.tiles.key, 13).setScale(1.2);
+        goodItem1.setMask(makeMask(-160, 10, 1.2));
         const goodItem2 = this.add.sprite(-120, 10, ASSETS.spritesheet.tiles.key, 14).setScale(1.2);
+        goodItem2.setMask(makeMask(-120, 10, 1.2));
         const goodItem3 = this.add.sprite(-80, 10, ASSETS.spritesheet.tiles.key, 25).setScale(1.2);
+        goodItem3.setMask(makeMask(-80, 10, 1.2));
         this.tutorialPopup.add([goodItem1, goodItem2, goodItem3]);
 
         const bigItemText = this.add.text(-120, 60, '1 a 3 Golpes', {
@@ -135,6 +154,8 @@ export class Game extends Phaser.Scene {
         this.tutorialPopup.add(evitarText);
 
         const badItem1 = this.add.sprite(120, 10, ASSETS.spritesheet.tiles.key, 42).setScale(1.2).setTint(0xff0000);
+        badItem1.setMask(makeMask(120, 10, 1.2));
+
         this.tutorialPopup.add(badItem1);
 
         const loseText = this.add.text(120, 60, 'Fim de Jogo', {

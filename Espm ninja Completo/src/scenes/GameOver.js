@@ -35,7 +35,7 @@ export class GameOver extends Phaser.Scene {
             .setOrigin(0.5)
             .setInteractive({ useHandCursor: true });
 
-        const ctaHint = this.add.text(buttonZone.x, buttonZone.y + buttonZone.height * 0.82, 'Clique em VOLTAR AO MENU', {
+        const ctaHint = this.add.text(width / 2, buttonZone.y + buttonZone.height * 0.82, 'Clique em VOLTAR AO MENU', {
             fontFamily: 'Georgia, Times New Roman, serif',
             fontSize: `${Math.max(14, Math.floor(height * 0.023))}px`,
             color: '#ffe0b4',
